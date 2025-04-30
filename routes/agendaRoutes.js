@@ -18,6 +18,6 @@ router.get('/agenda/hours', getHorasDisponibles);
 router.post('/agenda/my-appointments', fetchMisCitas);
 
 // Todas las citas (requiere autenticación)
-router.get('/agenda/all', fetchHistorialCitas);
+router.get('/agenda/historial-citas', fetchHistorialCitas);
 
 module.exports = router;
