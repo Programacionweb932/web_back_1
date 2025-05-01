@@ -23,4 +23,6 @@ router.post('/agenda/my-appointments', fetchMisCitas);
 // Todas las citas (requiere autenticación)
 router.get('/agenda/historial-citas', fetchHistorialCitas);
 
+router.post('/agenda/cancel', cancelarCita);
+
 module.exports = router;
