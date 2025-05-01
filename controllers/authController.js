@@ -2,18 +2,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// Login con email
+// Login
 const postLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
+    if (!username || !password) {
       return res.status(400).json({ msg: 'Todos los campos son obligatorios.' });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ msg: 'Correo no registrado' });
+      return res.status(400).json({ msg: 'Usuario no encontrado' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -23,7 +23,7 @@ const postLogin = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET,  // Asegúrate de que esta variable de entorno esté configurada
       { expiresIn: '1h' }
     );
 
@@ -42,7 +42,7 @@ const postLogin = async (req, res) => {
   }
 };
 
-// Registro usuario (revisa solo por correo ya registrado)
+// Registro usuario
 const postRegistro = async (req, res) => {
   console.log('Body recibido:', req.body);
   const { username, email, password, phone, city, country } = req.body;
@@ -52,9 +52,9 @@ const postRegistro = async (req, res) => {
   }
 
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ $or: [{ username }, { email }] });
     if (userExists) {
-      return res.status(400).json({ message: 'El correo ya está registrado' });
+      return res.status(400).json({ message: 'El nombre de usuario o el email ya existen' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -77,7 +77,7 @@ const postRegistro = async (req, res) => {
   }
 };
 
-// Registro administrador (igual, verifica solo por correo)
+// Registro administrador
 const postRegistroAdmin = async (req, res) => {
   console.log('Body recibido:', req.body);
   const { username, email, password } = req.body;
@@ -87,9 +87,9 @@ const postRegistroAdmin = async (req, res) => {
   }
 
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ $or: [{ username }, { email }] });
     if (userExists) {
-      return res.status(400).json({ message: 'El correo ya está registrado' });
+      return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
