@@ -5,13 +5,13 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true,  // Asegura que el nombre de usuario sea único
+        unique: true,  
     },
     email: {
         type: String,
         required: true,
-        unique: true,  // Asegura que el email sea único
-        lowercase: true,  // Convierte el email a minúsculas
+        unique: true,  
+        lowercase: true,  
     },
     password: {
         type: String,
@@ -19,8 +19,20 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'user'],  // Los roles posibles son admin o user
-        default: 'user',  // El rol por defecto es 'user', pero se puede cambiar a 'admin'
+        enum: ['admin', 'user'],  
+        default: 'user',  
+    },
+    phone: { 
+        type: String, 
+        required: true 
+    },
+    city: {
+        type: String,
+        required: true,
+    },
+    country: {
+        type: String,
+        required: true,
     },
 }, {
 });
