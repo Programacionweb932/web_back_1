@@ -4,9 +4,12 @@ const {
   postAgenda,
   getHorasDisponibles,
   fetchMisCitas,
+  cancelarCita,
   fetchHistorialCitas
 } = require('../controllers/agendaController');
 const verifyToken = require('../middlewares/verifyToken');
+const verifyCaptcha = require('../middlewares/verifyCaptcha');
+
 
 // Crear cita
 router.post('/agenda', postAgenda);
