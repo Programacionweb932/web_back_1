@@ -4,7 +4,7 @@ const validator = require('validator');
 
 // Crear cita
 const postAgenda = async (req, res) => {
-  const { hora, date, email, name, tipoServicio } = req.body;
+  const { hora, date, email, name, tipoServicio, direccion, observacion } = req.body;
 
   const isValidTime = (time) => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -23,13 +23,7 @@ const postAgenda = async (req, res) => {
       return res.status(400).json({ error: 'Email inválido.' });
     }
 
-    // Verificar si ya existe cita en la misma hora y fecha
-    const existingAgenda = await Agenda.findOne({ date, hora });
-    if (existingAgenda) {
-      return res.status(400).json({ error: 'La hora seleccionada ya está reservada.' });
-    }
-
-    // Verificar existencia del usuario
+    // Verificar existencia del usuario por email
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
@@ -46,6 +40,53 @@ const postAgenda = async (req, res) => {
       return res.status(400).json({ error: 'Tipo de servicio no válido' });
     }
 
+    // Validar que la fecha y hora no sea anterior a ahora
+    const fechaHoraCita = new Date(`${date}T${hora}:00`);
+    const ahora = new Date();
+    if (fechaHoraCita <= ahora) {
+      return res.status(400).json({ error: 'No puedes agendar en una fecha y hora pasada.' });
+    }
+
+    // Validar que la fecha no sea domingo o festivo (Colombia)
+    // Definimos festivos 2025 en Colombia (puedes ampliar según necesites)
+    const festivosColombia2025 = [
+      '2025-01-01', // Año Nuevo
+      '2025-01-06', // Reyes Magos (festivo trasladado)
+      '2025-03-24', // Día de San José (trasladado)
+      '2025-04-17', // Jueves Santo
+      '2025-04-18', // Viernes Santo
+      '2025-05-01', // Día del Trabajo
+      '2025-06-02', // Corpus Christi (lunes festivo)
+      '2025-06-09', // Sagrado Corazón (lunes festivo)
+      '2025-07-20', // Día de la Independencia
+      '2025-08-07', // Batalla de Boyacá
+      '2025-08-18', // Asunción de la Virgen (lunes festivo)
+      '2025-10-13', // Día de la Raza (lunes festivo)
+      '2025-11-03', // Todos los Santos (lunes festivo)
+      '2025-11-17', // Independencia de Cartagena (lunes festivo)
+      '2025-12-08', // Inmaculada Concepción
+      '2025-12-25', // Navidad
+    ];
+
+    const fechaISO = date; // debe venir en formato 'YYYY-MM-DD'
+
+    // Validar domingo
+    const diaSemana = fechaHoraCita.getDay(); // 0 = domingo
+    if (diaSemana === 0) {
+      return res.status(400).json({ error: 'No se pueden agendar citas los domingos.' });
+    }
+
+    // Validar festivos
+    if (festivosColombia2025.includes(fechaISO)) {
+      return res.status(400).json({ error: 'No se pueden agendar citas en días festivos.' });
+    }
+
+    // Verificar si ya existe cita en la misma hora y fecha (para cualquier usuario)
+    const existingAgenda = await Agenda.findOne({ date, hora });
+    if (existingAgenda) {
+      return res.status(400).json({ error: 'La hora seleccionada ya está reservada.' });
+    }
+
     const newAgenda = new Agenda({
       userId: user._id,
       hora,
@@ -53,6 +94,8 @@ const postAgenda = async (req, res) => {
       email,
       name,
       tipoServicio,
+      direccion,
+      observacion,
       status: 'reservada',
     });
 
@@ -97,13 +140,20 @@ const fetchMisCitas = async (req, res) => {
       return res.status(400).json({ error: 'Email inválido.' });
     }
 
+    // Buscar al usuario por su email
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
 
-    const citas = await Agenda.find({ userId: user._id }).sort({ date: -1, hora: -1 });
+    // Buscar las citas por userId, ordenadas de más recientes a más antiguas
+    const citas = await Agenda.find({ userId: user._id })
+      .sort({ date: -1, hora: -1 })
+      .select('hora date tipoServicio status direccion observacion name email'); // ← Asegura incluir estos campos
+
     res.status(200).json({ citas });
   } catch (error) {
-    console.error(error);
+    console.error('Error al obtener las citas del usuario:', error);
     res.status(500).json({ error: 'Error al obtener las citas del usuario.' });
   }
 };
@@ -140,6 +190,25 @@ const fetchHistorialCitas = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener las citas.' });
   }
 };
+const getHorasOcupadas = async (req, res) => {
+  const { date } = req.query;
+  try {
+    if (!date) return res.status(400).json({ error: 'La fecha es requerida' });
+
+    // Buscar todas las citas reservadas o activas (no canceladas) para esa fecha
+    const citasOcupadas = await Agenda.find({ 
+      date, 
+      status: { $ne: 'cancelada' } 
+    }).select('hora');
+
+    const horasOcupadas = citasOcupadas.map(cita => cita.hora);
+
+    res.status(200).json({ horasOcupadas });
+  } catch (error) {
+    console.error('Error al obtener horas ocupadas:', error);
+    res.status(500).json({ error: 'Error al obtener horas ocupadas' });
+  }
+};
 
 module.exports = {
   postAgenda,
@@ -147,4 +216,5 @@ module.exports = {
   fetchMisCitas,
   cancelarCita,
   fetchHistorialCitas,
+  getHorasOcupadas
 };

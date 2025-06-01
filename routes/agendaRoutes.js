@@ -5,7 +5,8 @@ const {
   getHorasDisponibles,
   fetchMisCitas,
   cancelarCita,
-  fetchHistorialCitas
+  fetchHistorialCitas,
+  getHorasOcupadas
 } = require('../controllers/agendaController');
 const verifyToken = require('../middlewares/verifyToken');
 const verifyCaptcha = require('../middlewares/verifyCaptcha');
@@ -24,5 +25,8 @@ router.post('/agenda/my-appointments', fetchMisCitas);
 router.get('/agenda/historial-citas', fetchHistorialCitas);
 
 router.post('/agenda/cancel', cancelarCita);
+
+// Obtener horas ocupadas
+router.get('/agenda/occupied-hours', getHorasOcupadas);
 
 module.exports = router;
