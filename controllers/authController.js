@@ -44,9 +44,10 @@ const postLogin = async (req, res) => {
 
 // Registro usuario
 const postRegistro = async (req, res) => {
-  const { username, email, password } = req.body;
+  console.log('Body recibido:', req.body);
+  const { username, email, password, phone, city, country } = req.body;
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !phone || !city || !country ) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
@@ -62,7 +63,10 @@ const postRegistro = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      phone,
       role: 'user',
+      city,
+      country,
     });
 
     await newUser.save();
@@ -75,6 +79,7 @@ const postRegistro = async (req, res) => {
 
 // Registro administrador
 const postRegistroAdmin = async (req, res) => {
+  console.log('Body recibido:', req.body);
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {

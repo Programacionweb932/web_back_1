@@ -14,9 +14,8 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configuración de CORS
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://web-back-p.vercel.app'],
   credentials: true,
 }));
 

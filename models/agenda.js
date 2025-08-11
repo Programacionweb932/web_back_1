@@ -9,33 +9,30 @@ const agendaSchema = new mongoose.Schema({
   },
   hora: {
     type: String,
-    required: true, // Hora de la cita (en formato HH:MM)
+    required: true, // Hora en formato HH:MM
   },
   date: {
     type: String,
-    required: true, // Fecha de la cita (en formato YYYY-MM-DD)
+    required: true, // Fecha como objeto Date
   },
   email: {
     type: String,
-    required: true, // Email del usuario
+    required: true,
   },
   name: {
     type: String,
-    required: true, // Nombre del usuario
+    required: true,
   },
   tipoServicio: {
     type: String,
     required: true,
-
   },
   status: {
     type: String,
     enum: ['reservada', 'cancelada', 'completada'],
-    default: 'reservada', // Estado de la cita, por defecto 'reservada'
+    default: 'reservada',
   },
 });
 
-// Crear y exportar el modelo de la agenda
 const Agenda = mongoose.model('Agenda', agendaSchema);
-
 module.exports = Agenda;
