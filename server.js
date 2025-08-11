@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://web-back-p.vercel.app'],
+  origin: ['https://elmundodelatecnologiaf.vercel.app/', 'https://web-back-1.vercel.app'],
   credentials: true,
 }));
 
