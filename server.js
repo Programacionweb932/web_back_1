@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cors({
-  origin: ['https://elmundodelatecnologiaf.vercel.app', 'https://web-back-1.vercel.app'],
+  origin: ['https://elmundodelatecnologiaf.vercel.app'],
   credentials: true,
 }));
 
