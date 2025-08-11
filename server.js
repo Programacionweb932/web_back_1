@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Rutas
 const authRoutes = require('./routes/authRoutes');
 const ticketsRoutes = require('./routes/ticketsRoutes');
 const agendaRoutes = require('./routes/agendaRoutes');
@@ -15,8 +16,8 @@ app.use(express.json());
 
 // Configuración CORS
 const allowedOrigins = [
-  'https://elmundodelatecnologiaf.vercel.app', // Frontend en producción
-  'http://localhost:5173' // Para desarrollo local con Vite
+  'https://elmundodelatecnologiaf.vercel.app', // Producción
+  'http://localhost:5173' // Desarrollo local
 ];
 
 app.use(cors({
@@ -30,8 +31,11 @@ app.use(cors({
   credentials: true
 }));
 
-// Respuesta rápida a preflight requests
-app.options('*', cors());
+// Manejo de preflight (OPTIONS) para todas las rutas
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 // Rutas
 app.use('/api/auth', authRoutes);
@@ -48,13 +52,13 @@ mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('✅ Conectado a MongoDB'))
-.catch(err => console.error('❌ Error al conectar a MongoDB:', err));
+  .then(() => console.log('✅ Conectado a MongoDB'))
+  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
 // Exportar para Vercel
 module.exports = app;
 
-// Si corres localmente, levanta el servidor
+// Si es local, levantar servidor
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
