@@ -20,7 +20,7 @@ const allowedOrigins = [
   'http://localhost:5173' // Desarrollo local
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -28,19 +28,26 @@ app.use(cors({
       callback(new Error('CORS no permitido'));
     }
   },
-  credentials: true
-}));
+  credentials: true,
+  optionsSuccessStatus: 200 // Evita errores en navegadores viejos
+};
 
-// Manejo de preflight (OPTIONS) para todas las rutas
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
+
+// Manejo global de preflight (OPTIONS)
+app.options('*', cors(corsOptions), (req, res) => {
+  res.sendStatus(200);
+});
 
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api', ticketsRoutes);
 app.use('/api', agendaRoutes);
+
+// Ruta raíz para pruebas
+app.get('/', (req, res) => {
+  res.send('Servidor backend funcionando 🚀');
+});
 
 // Conexión a MongoDB
 const mongoURI = process.env.MONGO_URI;
@@ -52,12 +59,8 @@ mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => console.log('✅ Conectado a MongoDB'))
-  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
-  app.get('/', (req, res) => {
-  res.send('Servidor backend funcionando 🚀');
-});
-
+.then(() => console.log('✅ Conectado a MongoDB'))
+.catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
 // Exportar para Vercel
 module.exports = app;
