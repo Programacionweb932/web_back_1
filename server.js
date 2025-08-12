@@ -9,10 +9,9 @@ const agendaRoutes = require('./routes/agendaRoutes');
 
 const app = express();
 
-// ====== Configuración CORS ======
 const allowedOrigins = [
-  'https://elmundodelatecnologiaf.vercel.app', // Producción
-  'http://localhost:5173' // Local
+  'https://elmundodelatecnologiaf.vercel.app', 
+  'http://localhost:5173' 
 ];
 
 const corsOptions = {
@@ -29,7 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions), (req, res) => res.sendStatus(200));
-// =================================
+
 
 // Middleware para parsear JSON y formularios
 app.use(express.urlencoded({ extended: true }));
@@ -42,7 +41,7 @@ app.use('/api', agendaRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {
-  res.send('Servidor backend funcionando 🚀');
+  res.send('Kevin el servidor esta corriendo');
 });
 
 // Conexión MongoDB
