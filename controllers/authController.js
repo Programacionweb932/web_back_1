@@ -5,6 +5,8 @@ const Admin = require('../models/Admin');
 
 // Login
 const postLogin = async (req, res) => {
+  console.log("Body recibido en login:", req.body);
+
   try {
     const { username, password } = req.body;
 
