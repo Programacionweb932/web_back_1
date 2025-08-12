@@ -5,6 +5,8 @@ const Admin = require('../models/Admin');
 
 // Login
 const postLogin = async (req, res) => {
+  console.log("Body recibido en login:", req.body);
+
   try {
     const { username, password } = req.body;
 
@@ -12,7 +14,12 @@ const postLogin = async (req, res) => {
       return res.status(400).json({ msg: 'Todos los campos son obligatorios.' });
     }
 
-    const user = await User.findOne({ username });
+    // Buscar en User o Admin, y aceptar tanto username como email
+    let user = await User.findOne({ $or: [{ username }, { email: username }] });
+    if (!user) {
+      user = await Admin.findOne({ $or: [{ username }, { email: username }] });
+    }
+
     if (!user) {
       return res.status(400).json({ msg: 'Usuario no encontrado' });
     }
@@ -24,7 +31,7 @@ const postLogin = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,  // Asegúrate de que esta variable de entorno esté configurada
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
