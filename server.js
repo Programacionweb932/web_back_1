@@ -46,11 +46,11 @@ app.get('/', (req, res) => {
 
 // Conexión MongoDB
 const mongoURI = process.env.MONGO_URI;
-if (!mongoURI) throw new Error(' MONGO_URI no está definida');
+if (!mongoURI) throw new Error('❌ MONGO_URI no está definida');
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log(' Conectado a MongoDB'))
-  .catch(err => console.error(' Error al conectar a MongoDB:', err));
+  .then(() => console.log('✅ Conectado a MongoDB'))
+  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
 // Exportar para Vercel
 module.exports = app;
@@ -58,5 +58,5 @@ module.exports = app;
 // Servidor local
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Servidor escuchando en puerto ${PORT}`));
+  app.listen(PORT, () => console.log(`🚀 Servidor escuchando en puerto ${PORT}`));
 }
