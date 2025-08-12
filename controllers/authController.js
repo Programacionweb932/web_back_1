@@ -14,7 +14,7 @@ const postLogin = async (req, res) => {
       return res.status(400).json({ msg: 'Todos los campos son obligatorios.' });
     }
 
-    // Buscar en User o Admin, y aceptar tanto username como email
+    // Buscar en User o Admin (por username o email)
     let user = await User.findOne({ $or: [{ username }, { email: username }] });
     if (!user) {
       user = await Admin.findOne({ $or: [{ username }, { email: username }] });
@@ -55,13 +55,14 @@ const postRegistro = async (req, res) => {
   console.log('Body recibido:', req.body);
   const { username, email, password, phone, city, country } = req.body;
 
-  if (!username || !email || !password || !phone || !city || !country ) {
+  if (!username || !email || !password || !phone || !city || !country) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
   try {
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
-    if (userExists) {
+    const adminExists = await Admin.findOne({ $or: [{ username }, { email }] });
+    if (userExists || adminExists) {
       return res.status(400).json({ message: 'El nombre de usuario o el email ya existen' });
     }
 
@@ -95,8 +96,10 @@ const postRegistroAdmin = async (req, res) => {
   }
 
   try {
-    const userExists = await User.findOne({ $or: [{ username }, { email }] });
-    if (userExists) {
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    const existingAdmin = await Admin.findOne({ $or: [{ username }, { email }] });
+
+    if (existingUser || existingAdmin) {
       return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe' });
     }
 
