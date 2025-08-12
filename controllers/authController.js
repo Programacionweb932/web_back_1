@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Admin = requiere('../models/Admin');
 
 // Login
 const postLogin = async (req, res) => {
@@ -94,7 +95,7 @@ const postRegistroAdmin = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newAdmin = new User({
+    const newAdmin = new Admin({
       username,
       email,
       password: hashedPassword,
