@@ -15,7 +15,7 @@ const postTicket = async (req, res) => {
       email,
       name,
       status: 'Pendiente',
-      response: '',
+      adminDescription: '',
       date: new Date(),
     });
 
@@ -27,7 +27,7 @@ const postTicket = async (req, res) => {
   }
 };
 
-// Obtener historial
+// Historial de tickets por email
 const fetchHistorialTicket = async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'El email es obligatorio.' });
@@ -44,9 +44,13 @@ const fetchHistorialTicket = async (req, res) => {
   }
 };
 
-// Obtener todos los tickets
+// Obtener todos los tickets (solo admin)
 const getallticket = async (req, res) => {
   try {
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado.' });
+    }
+
     const tickets = await Ticket.find();
     res.json({ tickets });
   } catch (error) {
@@ -55,8 +59,12 @@ const getallticket = async (req, res) => {
   }
 };
 
-// Actualizar estado
+// Actualizar estado del ticket (solo admin)
 const ActualizarEstadoTicket = async (req, res) => {
+  if (req.userRole !== 'admin') {
+    return res.status(403).json({ error: 'No autorizado.' });
+  }
+
   const { ticketId, status, adminDescription } = req.body;
   try {
     const ticket = await Ticket.findById(ticketId);
