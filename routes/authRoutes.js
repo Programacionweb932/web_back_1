@@ -5,6 +5,6 @@ const { postLogin, postRegistro, postRegistroAdmin } = require('../controllers/a
 // Rutas protegidas por verificación de CAPTCHA
 router.post('/login', postLogin);  // El middleware se ejecuta antes del controlador
 router.post('/register', postRegistro);
-router.post('/register-admin', postRegistroAdmin);
+router.post('/registeradmin', postRegistroAdmin);
 
 module.exports = router;
