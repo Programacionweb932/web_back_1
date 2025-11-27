@@ -61,9 +61,9 @@ const getallticket = async (req, res) => {
 
 // Actualizar estado del ticket (solo admin)
 const ActualizarEstadoTicket = async (req, res) => {
-  if (req.userRole !== 'admin') {
+  /*if (req.userRole !== 'admin') {
     return res.status(403).json({ error: 'No autorizado.' });
-  }
+  }*/
 
   const { ticketId, status, adminDescription } = req.body;
   try {
