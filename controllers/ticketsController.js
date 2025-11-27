@@ -47,9 +47,9 @@ const fetchHistorialTicket = async (req, res) => {
 // Obtener todos los tickets (solo admin)
 const getallticket = async (req, res) => {
   try {
-    if (req.userRole !== 'admin') {
+    /*if (req.userRole !== 'admin') {
       return res.status(403).json({ error: 'No autorizado.' });
-    }
+    }*/
 
     const tickets = await Ticket.find();
     res.json({ tickets });
