@@ -9,23 +9,39 @@ const agendaSchema = new mongoose.Schema({
   },
   hora: {
     type: String,
-    required: true, // Hora en formato HH:MM
+    required: true,
+    match: /^([0-1]\d|2[0-3]):([0-5]\d)$/, // Validación para formato HH:MM (24 horas)
   },
   date: {
-    type: String,
-    required: true, // Fecha como objeto Date
+    type: Date,
+    required: true,
   },
   email: {
     type: String,
     required: true,
+    lowercase: true,
+    trim: true,
+    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, // Validación de correo
   },
   name: {
     type: String,
     required: true,
+    trim: true,
   },
   tipoServicio: {
     type: String,
     required: true,
+    trim: true,
+  },
+  direccion: {
+    type: String,
+    required: true,
+    trim: true,
+  },  
+  observacion: {
+    type: String,
+    trim: true,
+    default: '',
   },
   status: {
     type: String,

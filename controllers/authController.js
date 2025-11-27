@@ -1,9 +1,12 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Admin = require('../models/Admin');
 
 // Login
 const postLogin = async (req, res) => {
+  console.log("Body recibido en login:", req.body);
+
   try {
     const { username, password } = req.body;
 
@@ -11,7 +14,12 @@ const postLogin = async (req, res) => {
       return res.status(400).json({ msg: 'Todos los campos son obligatorios.' });
     }
 
-    const user = await User.findOne({ username });
+    // Buscar en User o Admin (por username o email)
+    let user = await User.findOne({ $or: [{ username }, { email: username }] });
+    if (!user) {
+      user = await Admin.findOne({ $or: [{ username }, { email: username }] });
+    }
+
     if (!user) {
       return res.status(400).json({ msg: 'Usuario no encontrado' });
     }
@@ -23,7 +31,7 @@ const postLogin = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,  // Asegúrate de que esta variable de entorno esté configurada
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -47,13 +55,14 @@ const postRegistro = async (req, res) => {
   console.log('Body recibido:', req.body);
   const { username, email, password, phone, city, country } = req.body;
 
-  if (!username || !email || !password || !phone || !city || !country ) {
+  if (!username || !email || !password || !phone || !city || !country) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
   try {
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
-    if (userExists) {
+    const adminExists = await Admin.findOne({ $or: [{ username }, { email }] });
+    if (userExists || adminExists) {
       return res.status(400).json({ message: 'El nombre de usuario o el email ya existen' });
     }
 
@@ -87,14 +96,16 @@ const postRegistroAdmin = async (req, res) => {
   }
 
   try {
-    const userExists = await User.findOne({ $or: [{ username }, { email }] });
-    if (userExists) {
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    const existingAdmin = await Admin.findOne({ $or: [{ username }, { email }] });
+
+    if (existingUser || existingAdmin) {
       return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newAdmin = new User({
+    const newAdmin = new Admin({
       username,
       email,
       password: hashedPassword,
