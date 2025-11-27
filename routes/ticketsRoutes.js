@@ -15,9 +15,9 @@ router.post('/ticket', postTicket);
 router.post('/tickets/history', fetchHistorialTicket);
 
 // Todos los tickets (requiere autenticación)
-router.get('/tickets/all', verifyToken, getallticket);
+router.get('/tickets/all',  getallticket);
 
 // Actualizar estado del ticket (requiere autenticación)
-router.put('/tickets/update-status', verifyToken, ActualizarEstadoTicket);
+router.put('/tickets/update-status',  ActualizarEstadoTicket);
 
 module.exports = router;
